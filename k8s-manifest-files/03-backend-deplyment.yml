@@ -1,0 +1,63 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: backend-deployment
+  labels:
+    app: taskflow-be
+  namespace: taskflow-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taskflow-be
+  template:
+    metadata:
+      labels:
+        app: taskflow-be
+    spec:
+      containers:
+        - name: taskflow-backend-cont
+          image: uditsdocker/taskflow-backend
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
+          env:
+            # 1. Pulling plain configurations from ConfigMap
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-configmap  # Ensure this matches your actual ConfigMap metadata.name
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-configmap
+                  key: POSTGRES_DB
+            - name: BACKEND_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-configmap
+                  key: BACKEND_PORT
+
+            # 2. Pulling sensitive secrets from Secret
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: POSTGRES_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: JWT_SECRET
+
+            # 3. Constructing the dynamic DATABASE_URL using $(VAR) syntax
+            - name: DATABASE_URL
+              value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)"
+

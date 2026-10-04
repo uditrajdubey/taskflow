@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: taskflow-ns  # Must match the Deployment namespace
+spec:
+  type: ClusterIP         # Use NodePort or LoadBalancer if exposing outside the cluster
+  selector:
+    app: taskflow-fe      # Must perfectly match the Deployment template label
+  ports:
+    - protocol: TCP
+      port: 80            # The port the Service exposes inside the cluster
+      targetPort: 80      # The port the container is listening on (containerPort)
+

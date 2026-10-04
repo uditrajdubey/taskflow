@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-headless
+  namespace: taskflow-ns
+  labels:
+    app: postgres
+spec:
+  clusterIP: None       # Makes the service headless
+  selector:
+    app: postgres       # Must match the StatefulSet template labels
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: dbport  # it is optional  to write the name 
+

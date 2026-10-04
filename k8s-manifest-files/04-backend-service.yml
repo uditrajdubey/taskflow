@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: taskflow-ns  # Must match the Deployment namespace
+spec:
+  type: ClusterIP         # Use NodePort or LoadBalancer if exposing outside the cluster
+  selector:
+    app: taskflow-be      # Must perfectly match the Deployment template label
+  ports:
+    - protocol: TCP
+      port: 8000           # The port the Service exposes inside the cluster
+      targetPort: 8000      # The port the container is listening on (containerPort)
+

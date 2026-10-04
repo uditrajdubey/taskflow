@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-demo-pv
+
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 100Mi             # Adequate sizing for a standard application database
+  accessModes:
+    - ReadWriteOnce         # Standard single-node block access mode for PostgreSQL
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/tmp/postgres-data" # Directory path on your cluster node to store the data
+    type: DirectoryOrCreate

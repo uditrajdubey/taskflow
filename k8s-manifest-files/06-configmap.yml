@@ -1,0 +1,13 @@
+kind: ConfigMap
+apiVersion: v1
+
+metadata:
+  name: taskflow-configmap
+  namespace: taskflow-ns 
+
+data:
+
+  POSTGRES_USER: taskflow
+  POSTGRES_DB: taskflow
+  BACKEND_PORT: "8000"
+

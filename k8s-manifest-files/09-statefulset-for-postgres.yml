@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: taskflow-ns
+spec:
+  serviceName: "postgres-headless"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          ports:
+            - containerPort: 5432
+              name: dbport
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-configmap
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: taskflow-configmap
+                  key: POSTGRES_DB
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: taskflow-secrets
+                  key: POSTGRES_PASSWORD
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+          volumeMounts:
+            - name: storage-demo-pvc # Must exactly match the metadata.name in the template below
+              mountPath: /var/lib/postgresql
+              subPath: postgres-db-dir
+  
+  # The PVC is now declared dynamically inside the StatefulSet
+  volumeClaimTemplates:
+    - metadata:
+        name: storage-demo-pvc
+      spec:
+        accessModes:
+          - ReadWriteOnce # Matches your PV's access mode from image 1
+        storageClassName: manual # Matches your PV's storage class from image 1
+        resources:
+          requests:
+            storage: 50Mi # Matches your exact storage footprint requirement from image 1
+
